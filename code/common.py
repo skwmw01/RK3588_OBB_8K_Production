@@ -4,6 +4,42 @@
 """
 import cv2, numpy as np, threading, queue, math, time
 from rknnlite.api import RKNNLite
+from numba import njit
+
+# =========================================================
+# Numba JIT 加速的解码内核
+# =========================================================
+@njit(cache=True)
+def _decode_kernel(xd_l, xd_t, xd_r, xd_b, cf, ci, angle,
+                   H, W, s, ao, scale, ox, oy, conf_th):
+    """Numba 加速：从 DFL 输出解码检测框"""
+    out = np.empty((H * W, 7), np.float32)
+    cnt = 0
+    pi = 3.14159265358979
+    for h in range(H):
+        for w in range(W):
+            c = cf[h, w]
+            if c <= conf_th:
+                continue
+            l = xd_l[h, w]
+            t = xd_t[h, w]
+            r = xd_r[h, w]
+            b = xd_b[h, w]
+            cx = (w + 0.5 + (r - l) * 0.5) * s * scale + ox
+            cy = (h + 0.5 + (b - t) * 0.5) * s * scale + oy
+            bw = (l + r) * s * scale
+            bh = (t + b) * s * scale
+            ai = ao + h * W + w
+            ang = (angle[ai] - 0.25) * pi
+            out[cnt, 0] = cx
+            out[cnt, 1] = cy
+            out[cnt, 2] = bw
+            out[cnt, 3] = bh
+            out[cnt, 4] = ang
+            out[cnt, 5] = c
+            out[cnt, 6] = ci[h, w]
+            cnt += 1
+    return out[:cnt]
 
 # =========================================================
 # 路径常量
@@ -29,7 +65,7 @@ MODEL_2048_KL = f"{MODEL_DIR}/yolov8n-obb_kl_channel_w8a8_2048.rknn"
 def sigmoid(x): return 1.0 / (1.0 + np.exp(-x))
 
 def decode_generic(outs, imgsz, ox=0, oy=0, scale=1.0, conf_th=0.3):
-    """解码 OBB 输出到 [cx, cy, w, h, angle, conf, cls]（向量化版本）"""
+    """解码 OBB 输出到 [cx, cy, w, h, angle, conf, cls]（Numba JIT 加速）"""
     dets = []
     strides = [8, 16, 32]
     g = imgsz // 8
@@ -39,32 +75,18 @@ def decode_generic(outs, imgsz, ox=0, oy=0, scale=1.0, conf_th=0.3):
         _, _, H, W = o.shape
         xywh = o[0, :64].reshape(4, 16, H, W)
         clsl = o[0, 64:79]
-        # softmax + expected value on 16 bins
+        # softmax + expected value on 16 bins（NumPy 向量化，已够快）
         sm = np.exp(xywh - xywh.max(axis=1, keepdims=True))
         sm /= sm.sum(axis=1, keepdims=True)
         xd = (sm * np.arange(16).reshape(1, 16, 1, 1)).sum(axis=1)
         cp = sigmoid(clsl)
-        ci = cp.argmax(axis=0)
+        ci = cp.argmax(axis=0).astype(np.int32)
         cf = cp.max(axis=0)
-        m = cf > conf_th
-        if not m.any():
-            continue
-        # --- 向量化：替代逐像素 Python 循环 ---
-        hs, ws = np.where(m)
-        l = xd[0, hs, ws]
-        t = xd[1, hs, ws]
-        r = xd[2, hs, ws]
-        b = xd[3, hs, ws]
-        cx = (ws + 0.5 + (r - l) / 2) * s * scale + ox
-        cy = (hs + 0.5 + (b - t) / 2) * s * scale + oy
-        bw = (l + r) * s * scale
-        bh = (t + b) * s * scale
-        ai = ao + hs * W + ws
-        ang = (angle[ai] - 0.25) * math.pi
-        conf_vals = cf[hs, ws]
-        cls_vals = ci[hs, ws]
-        det = np.stack([cx, cy, bw, bh, ang, conf_vals, cls_vals.astype(np.float32)], axis=1)
-        dets.append(det)
+        # --- Numba JIT 解码内核 ---
+        det = _decode_kernel(xd[0], xd[1], xd[2], xd[3],
+                             cf, ci, angle, H, W, s, ao, scale, ox, oy, conf_th)
+        if len(det) > 0:
+            dets.append(det)
     if dets:
         return np.concatenate(dets, axis=0).tolist()
     return []
