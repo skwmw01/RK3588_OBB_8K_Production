@@ -4,42 +4,67 @@
 """
 import cv2, numpy as np, threading, queue, math, time
 from rknnlite.api import RKNNLite
-from numba import njit
+
+try:
+    from numba import njit
+    _HAS_NUMBA = True
+except ImportError:
+    _HAS_NUMBA = False
 
 # =========================================================
-# Numba JIT 加速的解码内核
+# 解码内核：优先 Numba JIT，回退 NumPy 向量化
 # =========================================================
-@njit(cache=True)
-def _decode_kernel(xd_l, xd_t, xd_r, xd_b, cf, ci, angle,
-                   H, W, s, ao, scale, ox, oy, conf_th):
-    """Numba 加速：从 DFL 输出解码检测框"""
-    out = np.empty((H * W, 7), np.float32)
-    cnt = 0
-    pi = 3.14159265358979
-    for h in range(H):
-        for w in range(W):
-            c = cf[h, w]
-            if c <= conf_th:
-                continue
-            l = xd_l[h, w]
-            t = xd_t[h, w]
-            r = xd_r[h, w]
-            b = xd_b[h, w]
-            cx = (w + 0.5 + (r - l) * 0.5) * s * scale + ox
-            cy = (h + 0.5 + (b - t) * 0.5) * s * scale + oy
-            bw = (l + r) * s * scale
-            bh = (t + b) * s * scale
-            ai = ao + h * W + w
-            ang = (angle[ai] - 0.25) * pi
-            out[cnt, 0] = cx
-            out[cnt, 1] = cy
-            out[cnt, 2] = bw
-            out[cnt, 3] = bh
-            out[cnt, 4] = ang
-            out[cnt, 5] = c
-            out[cnt, 6] = ci[h, w]
-            cnt += 1
-    return out[:cnt]
+def _decode_kernel_fallback(xd_l, xd_t, xd_r, xd_b, cf, ci, angle,
+                            H, W, s, ao, scale, ox, oy, conf_th):
+    """NumPy 向量化回退（无 numba 时使用）"""
+    m = cf > conf_th
+    if not m.any():
+        return np.empty((0, 7), np.float32)
+    hs, ws = np.where(m)
+    l = xd_l[hs, ws]; t = xd_t[hs, ws]
+    r = xd_r[hs, ws]; b = xd_b[hs, ws]
+    cx = (ws + 0.5 + (r - l) * 0.5) * s * scale + ox
+    cy = (hs + 0.5 + (b - t) * 0.5) * s * scale + oy
+    bw = (l + r) * s * scale
+    bh = (t + b) * s * scale
+    ai = ao + hs * W + ws
+    ang = (angle[ai] - 0.25) * math.pi
+    return np.stack([cx, cy, bw, bh, ang, cf[hs, ws], ci[hs, ws].astype(np.float32)], axis=1)
+
+if _HAS_NUMBA:
+    @njit(cache=True)
+    def _decode_kernel(xd_l, xd_t, xd_r, xd_b, cf, ci, angle,
+                       H, W, s, ao, scale, ox, oy, conf_th):
+        """Numba JIT 加速：从 DFL 输出解码检测框"""
+        out = np.empty((H * W, 7), np.float32)
+        cnt = 0
+        pi = 3.14159265358979
+        for h in range(H):
+            for w in range(W):
+                c = cf[h, w]
+                if c <= conf_th:
+                    continue
+                l = xd_l[h, w]
+                t = xd_t[h, w]
+                r = xd_r[h, w]
+                b = xd_b[h, w]
+                cx = (w + 0.5 + (r - l) * 0.5) * s * scale + ox
+                cy = (h + 0.5 + (b - t) * 0.5) * s * scale + oy
+                bw = (l + r) * s * scale
+                bh = (t + b) * s * scale
+                ai = ao + h * W + w
+                ang = (angle[ai] - 0.25) * pi
+                out[cnt, 0] = cx
+                out[cnt, 1] = cy
+                out[cnt, 2] = bw
+                out[cnt, 3] = bh
+                out[cnt, 4] = ang
+                out[cnt, 5] = c
+                out[cnt, 6] = ci[h, w]
+                cnt += 1
+        return out[:cnt]
+else:
+    _decode_kernel = _decode_kernel_fallback
 
 # =========================================================
 # 路径常量
