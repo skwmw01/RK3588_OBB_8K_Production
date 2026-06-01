@@ -8,9 +8,9 @@
 
 | 算子 | 文件 | 编译方式 |
 |------|------|---------|
-| DFLDecode | `code/common.py:_decode_kernel` | `@njit` 编译为 x86/ARM 机器码 |
-| BBoxDecode | 同上 | 同上 |
-| BBoxDecode_OBB | 同上 | 同上 |
+| DFLDecode + BBoxDecode + BBoxDecode_OBB（融合） | `code/common.py:_decode_kernel` | `@njit` 编译为 x86/ARM 机器码 |
+
+> 三个算子融合在同一个 `_decode_kernel` 函数中，12.7x 是该函数整体的加速比，非单个算子。
 
 ## 技术原理
 
