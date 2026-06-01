@@ -1,0 +1,122 @@
+[
+  {
+    "exp_id": "E18",
+    "name": "baseline: conf=0.1 + expand=8邻居",
+    "total_ms": 2819.0,
+    "count": 61,
+    "recall_pct": 59.6,
+    "hit": 28,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "A1",
+    "name": "conf=0.15 + expand=8邻居",
+    "total_ms": 2611.8,
+    "count": 57,
+    "recall_pct": 59.6,
+    "hit": 28,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "A2",
+    "name": "conf=0.20 + expand=8邻居",
+    "total_ms": 2634.8,
+    "count": 57,
+    "recall_pct": 61.7,
+    "hit": 29,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "A3",
+    "name": "conf=0.25 + expand=8邻居",
+    "total_ms": 2591.8,
+    "count": 55,
+    "recall_pct": 61.7,
+    "hit": 29,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "B1",
+    "name": "conf=0.1 + expand=十字4邻居",
+    "total_ms": 2301.3,
+    "count": 58,
+    "recall_pct": 57.4,
+    "hit": 27,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "B2",
+    "name": "conf=0.15 + expand=十字4邻居",
+    "total_ms": 2215.7,
+    "count": 56,
+    "recall_pct": 59.6,
+    "hit": 28,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "B3",
+    "name": "conf=0.1 + 只大目标扩8邻居",
+    "total_ms": 2809.2,
+    "count": 61,
+    "recall_pct": 61.7,
+    "hit": 29,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "B4",
+    "name": "conf=0.15 + 只大目标扩8邻居",
+    "total_ms": 2624.1,
+    "count": 56,
+    "recall_pct": 59.6,
+    "hit": 28,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "C1",
+    "name": "conf=0.2 + 十字4邻居",
+    "total_ms": 2166.6,
+    "count": 55,
+    "recall_pct": 59.6,
+    "hit": 28,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "C2",
+    "name": "conf=0.2 + 只大目标扩",
+    "total_ms": 2624.4,
+    "count": 56,
+    "recall_pct": 61.7,
+    "hit": 29,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "D1",
+    "name": "Y4 对照: conf=0.25 不扩",
+    "total_ms": 1115.5,
+    "count": 45,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "D2",
+    "name": "Y4 对照: conf=0.1 不扩",
+    "total_ms": 1224.1,
+    "count": 52,
+    "recall_pct": 53.2,
+    "hit": 25,
+    "total_gt": 47,
+    "within_1s": false
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "exp_id": "Z0",
+    "name": "Y4 裸跑 conf=0.1 不扩",
+    "total_ms": 1101.9,
+    "count": 51,
+    "recall_pct": 53.2,
+    "hit": 25,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "Z0b",
+    "name": "Y4 裸跑 conf=0.15 不扩",
+    "total_ms": 775.4,
+    "count": 46,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": true
+  },
+  {
+    "exp_id": "Z1-15",
+    "name": "conf=0.1 + 十字扩 限15 tile",
+    "total_ms": 609.2,
+    "count": 46,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": true
+  },
+  {
+    "exp_id": "Z1-20",
+    "name": "conf=0.1 + 十字扩 限20 tile",
+    "total_ms": 756.1,
+    "count": 51,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": true
+  },
+  {
+    "exp_id": "Z1-25",
+    "name": "conf=0.1 + 十字扩 限25 tile",
+    "total_ms": 918.1,
+    "count": 54,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": true
+  },
+  {
+    "exp_id": "Z1-30",
+    "name": "conf=0.1 + 十字扩 限30 tile",
+    "total_ms": 1123.8,
+    "count": 51,
+    "recall_pct": 53.2,
+    "hit": 25,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "Z1-35",
+    "name": "conf=0.1 + 十字扩 限35 tile",
+    "total_ms": 1260.6,
+    "count": 56,
+    "recall_pct": 55.3,
+    "hit": 26,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "Z2-20",
+    "name": "conf=0.25 + 十字扩 限20",
+    "total_ms": 752.2,
+    "count": 47,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": true
+  },
+  {
+    "exp_id": "Z2-25",
+    "name": "conf=0.25 + 十字扩 限25",
+    "total_ms": 968.1,
+    "count": 48,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": true
+  },
+  {
+    "exp_id": "Z2-30",
+    "name": "conf=0.25 + 十字扩 限30",
+    "total_ms": 1050.6,
+    "count": 47,
+    "recall_pct": 53.2,
+    "hit": 25,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "Z3-25",
+    "name": "conf=0.25 + 8邻居 限25",
+    "total_ms": 1008.8,
+    "count": 46,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": false
+  },
+  {
+    "exp_id": "Z3-30",
+    "name": "conf=0.25 + 8邻居 限30",
+    "total_ms": 1037.5,
+    "count": 49,
+    "recall_pct": 51.1,
+    "hit": 24,
+    "total_gt": 47,
+    "within_1s": false
+  }
+]
